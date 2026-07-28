@@ -33,7 +33,7 @@ NOTIFICATION (потому что если бы она была передана
 Все маршрутизаторы должны находиться в уникальных AS. \
 Пришлите pkt файл.
 
-[!pkt](https://github.com/jdm2us-art/NET13/blob/main/net13.pkt)
+[фаил pkt](https://github.com/jdm2us-art/NET13/blob/main/net13.pkt)
 
 # Задание 3
 
