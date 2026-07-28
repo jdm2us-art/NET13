@@ -32,3 +32,66 @@ NOTIFICATION (потому что если бы она была передана
 Соедините R4 и R5 между собой и настройте BGP. \
 Все маршрутизаторы должны находиться в уникальных AS. \
 Пришлите pkt файл.
+
+# Задание 3
+
+На основе предыдущей лабораторной работы настройте маршрутизацию таким образом, чтобы трафик от R2 проходил через маршрутизаторы: R4->R5->R1. В качестве ответа приложите примеры конфигураций устройств.
+
+Приведите ответ в свободной форме.
+
+Local Pref:
+
+R1 (AS100) — без изменений (базовая настройка)
+
+
+router bgp 100 \
+ bgp router-id 1.1.1.1 \
+ neighbor 10.0.1.2 remote-as 200 \
+ neighbor 10.0.2.2 remote-as 300 \
+ network 1.1.1.1 mask 255.255.255.255 \
+
+R2 (AS200) — с изменением Local Pref
+
+router bgp 200 \
+ bgp router-id 2.2.2.2 \
+ neighbor 10.0.1.1 remote-as 100 \
+ neighbor 10.0.3.2 remote-as 400 \
+ neighbor 10.0.1.1 route-map SET_LP_LOW in \
+ neighbor 10.0.3.2 route-map SET_LP_HIGH in \
+ network 2.2.2.2 mask 255.255.255.255
+
+route-map SET_LP_LOW permit 10 \
+ set local-preference 50
+
+route-map SET_LP_HIGH permit 10 \
+ set local-preference 200 \
+ 
+R5 (AS300) — без изменений
+
+router bgp 300  \
+ bgp router-id 3.3.3.3 \
+ neighbor 10.0.2.1 remote-as 100 \
+ neighbor 10.0.4.2 remote-as 400 \
+ network 3.3.3.3 mask 255.255.255.255 
+ 
+R4 (AS400) — без изменений
+
+router bgp 400 \
+ bgp router-id 4.4.4.4 \
+ neighbor 10.0.3.1 remote-as 200 \
+ neighbor 10.0.4.1 remote-as 300 \
+ network 4.4.4.4 mask 255.255.255.255 
+
+ Проверка результата на R2
+ 
+show ip bgp \
+show ip route 1.1.1.1 \
+traceroute 1.1.1.1 source 2.2.2.2
+
+Local Pref — это атрибут внутри AS, который определяет предпочтение путей выхода из AS. На R2 мы получаем маршрут до 1.1.1.1:
+
+Напрямую от R1 (сосед AS100)
+
+Через R4 (который получил от R5, который получил от R1)
+
+Мы можем назначить разный Local Pref для маршрутов, приходящих с разных соседей. Чем выше Local Pref, тем предпочтительнее.
